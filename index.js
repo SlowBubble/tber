@@ -100,7 +100,7 @@ function addArrows(vehicles) {
         position: vehicle,
         icon: arrow,
         map: map,
-        label: timeDiff.toString(),
+        label: vehicle.vehicle_id + ' : ' + timeDiff.toString(),
       });
     } else {
       marker.setPosition(vehicle);
