@@ -74,7 +74,7 @@ function getVehicles(vehiclesData) {
 
 function addMarkers(stops) {
   var square = {
-    path: 'M -15 15 L 15 15 L 15 -15 L -15 -15 z',
+    path: 'M -10 10 L 10 10 L 10 -10 L -10 -10 z',
     fillColor: 'white',
     fillOpacity: 0.2,
     scale: 1,
