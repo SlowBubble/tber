@@ -122,7 +122,7 @@ function addArrows(vehicles) {
       var arrow = {
         path: 'M -5 15 L 5 15 L 0 0 z',
         fillColor: fillColor,
-        fillOpacity: 0.5,
+        fillOpacity: 1,
         scale: 1,
         strokeColor: 'black',
         strokeWeight: 1,
