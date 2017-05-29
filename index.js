@@ -81,21 +81,53 @@ function addMarkers(stops) {
   });   
 }
 
+var oldVehicleIds = {
+  '544e09fa': 1,
+  '544e1ac0': 1,
+  '544e1ad7': 1,
+  '544e124f': 1,
+  '544e1750': 1,
+  '544e1907': 1,
+  '544e1972': 1,
+};
+
+var newVehicleIds = {
+  '544e0ff5': 1,  
+  '544e012c': 1,  
+  '544e1a3e': 1,  
+  '544e1b07': 1,  
+  '544e1c5e': 1,  
+  '544e1dec': 1,  
+  '544e1d09': 1,  
+  '544e1d65': 1,  
+  '544e1d8f': 1,  
+  '544e158b': 1,  
+  '544e158c': 1,  
+  '544e1932': 1,  
+  '544e193b': 1,  
+};
+
 function addArrows(vehicles) {
   var currTime = Math.floor((new Date()).getTime() / 1000);
   vehicles.forEach(function(vehicle) {
     var timeDiff = currTime - parseInt(vehicle.vehicle_timestamp);
-    var arrow = {
-      path: 'M -5 15 L 5 15 L 0 0 z',
-      fillColor: 'red',
-      fillOpacity: 0.5,
-      scale: 1,
-      strokeColor: 'black',
-      strokeWeight: 1,
-      rotation: vehicle.direction == 'Northbound' ? 0 : 180,
-    };
     var marker = vehicleIdToMarker[vehicle.vehicle_id]
     if (marker === undefined) {
+      var fillColor = 'yellow';
+      if (oldVehicleIds[vehicle.vehicle_id.toLowerCase()]) {
+        fillColor = 'green';
+      } else if (oldVehicleIds[vehicle.vehicle_id.toLowerCase()]) {
+        fillColor = 'red';
+      }
+      var arrow = {
+        path: 'M -5 15 L 5 15 L 0 0 z',
+        fillColor: fillColor,
+        fillOpacity: 0.5,
+        scale: 1,
+        strokeColor: 'black',
+        strokeWeight: 1,
+        rotation: vehicle.direction == 'Northbound' ? 0 : 180,
+      };
       vehicleIdToMarker[vehicle.vehicle_id] = new google.maps.Marker({
         position: vehicle,
         icon: arrow,
