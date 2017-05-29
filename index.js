@@ -73,10 +73,19 @@ function getVehicles(vehiclesData) {
 }
 
 function addMarkers(stops) {
+  var square = {
+    path: 'M -15 15 L 15 15 L 15 -15 L -15 -15 z',
+    fillColor: 'white',
+    fillOpacity: 0.2,
+    scale: 1,
+    strokeColor: 'black',
+    strokeWeight: 1,
+  };
   stops.forEach(function(stop) {
     new google.maps.Marker({
       position: stop,
       map: map,
+      icon: square,
     });
   });   
 }
