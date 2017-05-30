@@ -91,9 +91,14 @@ function addMarkers(stops) {
 }
 
 var oldVehicleIds = {
+  '544e0fd0': 1,
   '544e09fa': 1,
+  '544e1abb': 1,
   '544e1ac0': 1,
   '544e1ad7': 1,
+  '544e1e4a': 1,
+  '544e1e49': 1,
+  '544e1fa3': 1,
   '544e124f': 1,
   '544e1750': 1,
   '544e1907': 1,
@@ -101,6 +106,7 @@ var oldVehicleIds = {
 };
 
 var newVehicleIds = {
+  '544e0ce6': 1,  
   '544e0ff5': 1,  
   '544e012c': 1,  
   '544e1a3e': 1,  
@@ -110,10 +116,13 @@ var newVehicleIds = {
   '544e1d09': 1,  
   '544e1d65': 1,  
   '544e1d8f': 1,  
+  '544e1d90': 1,  
+  '544e1e4b': 1,  
   '544e158b': 1,  
   '544e158c': 1,  
   '544e1932': 1,  
   '544e193b': 1,  
+  '544e20a4': 1,  
 };
 
 function addArrows(vehicles) {
@@ -125,7 +134,7 @@ function addArrows(vehicles) {
       var fillColor = 'yellow';
       if (oldVehicleIds[vehicle.vehicle_id.toLowerCase()]) {
         fillColor = 'green';
-      } else if (oldVehicleIds[vehicle.vehicle_id.toLowerCase()]) {
+      } else if (newVehicleIds[vehicle.vehicle_id.toLowerCase()]) {
         fillColor = 'red';
       }
       var arrow = {
