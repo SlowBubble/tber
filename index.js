@@ -123,6 +123,9 @@ var newVehicleIds = {
   '544e1932': 1,  
   '544e193b': 1,  
   '544e20a4': 1,  
+  '544e2270': 1,  
+  '544e24d7': 1,  
+  '544e25a7': 1,  
 };
 
 function addArrows(vehicles) {
