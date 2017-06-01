@@ -60,8 +60,11 @@ function getVehicles(vehiclesData) {
       route['direction'].forEach(function(direction) {
         direction['trip'].forEach(function(trip) {
           var vehicle = trip.vehicle;
+          vehicle.northBound = vehicle.direction == 'Northbound';
           vehicle.lat = parseFloat(vehicle.vehicle_lat);
-          vehicle.lng = parseFloat(vehicle.vehicle_lon);
+          var offset = 0.00002;
+          var offsetSign = vehicle.northBound ? 1 : -1;
+          vehicle.lng = parseFloat(vehicle.vehicle_lon) + offset * offsetSign;
           vehicle.rotation = parseFloat(vehicle.vehicle_bearing);
           vehicle.direction = direction.direction_name;
           vehicles.push(vehicle);
@@ -114,13 +117,13 @@ function addArrows(vehicles) {
         fillColor = 'red';
       }
       var arrow = {
-        path: 'M 0 15 L 10 15 L 5 0 z',
+        path: 'M -5 15 L 5 15 L 0 0 z',
         fillColor: fillColor,
         fillOpacity: 1,
         scale: 1,
         strokeColor: 'black',
         strokeWeight: 1,
-        rotation: vehicle.direction == 'Northbound' ? 0 : 180,
+        rotation: northBound ? 0 : 180,
       };
       vehicleIdToMarker[vehicle.vehicle_id] = new google.maps.Marker({
         position: vehicle,
