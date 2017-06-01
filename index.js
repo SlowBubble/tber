@@ -128,7 +128,7 @@ function addArrows(vehicles) {
         scale: 1,
         strokeColor: 'black',
         strokeWeight: 1,
-        rotation: vehicle.northBound ? 0 : 180,
+        rotation: vehicle.direction == 'Northbound' ? 0 : 180,
       };
       vehicleIdToMarker[vehicle.vehicle_id] = new google.maps.Marker({
         position: vehicle,
