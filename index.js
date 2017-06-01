@@ -93,22 +93,6 @@ function addMarkers(stops) {
   });   
 }
 
-var oldVehicleLabels = {
-  '1806': 1,
-  '1811': 1,
-  '1826': 1,
-  '1846': 1,
-  '1853': 1,
-  '1863': 1,
-  '1872': 1,
-  '1878': 1,
-}
-
-var newVehicleLabels = {
-  '1707': 1,
-  '2456': 1,
-}
-
 function addArrows(vehicles) {
   var currTime = Math.floor((new Date()).getTime() / 1000);
   vehicles.forEach(function(vehicle) {
@@ -120,6 +104,8 @@ function addArrows(vehicles) {
         fillColor = 'green';
       } else if (newVehicleIds[vehicle.vehicle_id.toLowerCase()]) {
         fillColor = 'red';
+      } else if (vehicle.vehicle_label[1] == 8) {
+        fillColor = 'blue'; 
       }
       var arrow = {
         path: 'M -5 15 L 5 15 L 0 0 z',
