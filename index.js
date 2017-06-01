@@ -134,7 +134,7 @@ function addArrows(vehicles) {
         position: vehicle,
         icon: arrow,
         map: map,
-        label: vehicle.vehicle_id.slice(4) + '\n' + vehicle.vehicle_label,
+        label: vehicle.vehicle_id.slice(4) + vehicle.vehicle_label,
       });
     } else {
       marker.setPosition(vehicle);
