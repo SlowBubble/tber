@@ -116,9 +116,9 @@ function addArrows(vehicles) {
     var marker = vehicleIdToMarker[vehicle.vehicle_id]
     if (marker === undefined) {
       var fillColor = 'yellow';
-      if (oldVehicleLabels[vehicle.vehicle_label.toLowerCase()]) {
+      if (oldVehicleLabels[vehicle.vehicle_label.toLowerCase()] || oldVehicleIds[vehicle.vehicle_id.toLowerCase()]) {
         fillColor = 'green';
-      } else if (newVehicleLabels[vehicle.vehicle_label.toLowerCase()]) {
+      } else if (newVehicleLabels[vehicle.vehicle_label.toLowerCase()] || newVehicleIds[vehicle.vehicle_id.toLowerCase()]) {
         fillColor = 'red';
       }
       var arrow = {
@@ -150,3 +150,48 @@ function initMap(latitude, longitude) {
     zoom: 13,
   });
 }
+
+var oldVehicleIds = {
+  '544e0fd0': 1,
+  '544e09fa': 1,
+  '544e1abb': 1,
+  '544e1ac0': 1,
+  '544e1ad7': 1,
+  '544e1e4a': 1,
+  '544e1e49': 1,
+  '544e1fa3': 1,
+  '544e124f': 1,
+  '544e1750': 1,
+  '544e1907': 1,
+  '544e1972': 1,
+  '544e203d': 1,
+  '544e22a0': 1,
+  '544e24d5': 1,
+  '544e2772': 1,
+};
+
+var newVehicleIds = {
+  '544e0ce6': 1,  
+  '544e0ff5': 1,  
+  '544e012c': 1,  
+  '544e1a3e': 1,  
+  '544e1b07': 1,  
+  '544e1c5e': 1,  
+  '544e1dec': 1,  
+  '544e1d09': 1,  
+  '544e1d65': 1,  
+  '544e1d8f': 1,  
+  '544e1d90': 1,  
+  '544e1e4b': 1,  
+  '544e158b': 1,  
+  '544e158c': 1,  
+  '544e1932': 1,  
+  '544e193b': 1,  
+  '544e20a4': 1,  
+  '544e2270': 1,  
+  '544e24d7': 1,  
+  '544e2456': 1,  
+  '544e25a7': 1,  
+  '544e2538': 1,  
+  '544e2554': 1,  
+};
