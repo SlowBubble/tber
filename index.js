@@ -62,7 +62,7 @@ function getVehicles(vehiclesData) {
           var vehicle = trip.vehicle;
           vehicle.northBound = vehicle.direction == 'Northbound';
           vehicle.lat = parseFloat(vehicle.vehicle_lat);
-          var offset = 0.0001;
+          var offset = 0.0005;
           var offsetSign = vehicle.northBound ? 1 : -1;
           vehicle.lng = parseFloat(vehicle.vehicle_lon) + offset * offsetSign;
           vehicle.rotation = parseFloat(vehicle.vehicle_bearing);
