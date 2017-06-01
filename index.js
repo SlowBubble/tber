@@ -116,9 +116,9 @@ function addArrows(vehicles) {
     var marker = vehicleIdToMarker[vehicle.vehicle_id]
     if (marker === undefined) {
       var fillColor = 'yellow';
-      if (oldVehicleLabels[vehicle.vehicle_label.toLowerCase()] || oldVehicleIds[vehicle.vehicle_id.toLowerCase()]) {
+      if (oldVehicleIds[vehicle.vehicle_id.toLowerCase()]) {
         fillColor = 'green';
-      } else if (newVehicleLabels[vehicle.vehicle_label.toLowerCase()] || newVehicleIds[vehicle.vehicle_id.toLowerCase()]) {
+      } else if (newVehicleIds[vehicle.vehicle_id.toLowerCase()]) {
         fillColor = 'red';
       }
       var arrow = {
@@ -134,7 +134,7 @@ function addArrows(vehicles) {
         position: vehicle,
         icon: arrow,
         map: map,
-        label: vehicle.vehicle_label,
+        label: vehicle.vehicle_id.slice(4),
       });
     } else {
       marker.setPosition(vehicle);
