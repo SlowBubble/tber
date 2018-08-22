@@ -2,8 +2,7 @@
 /////////// Constants
 var apiKey = '5c68021c1c0942258e03ab1c82fd289a';
 var redVehiclesUrl = getQueryUrl('vehicles', 'Red', apiKey); 
-// var redPredictionsUrl = getQueryUrl('predictions', 'Red', apiKey);
-var redStopsUrl = getQueryUrl('stops', 'route', 'Red', apiKey); 
+var redStopsUrl = getQueryUrl('stops', 'Red', apiKey); 
 
 /////////// Vars initialized asynchronously
 var vehicles = [];
@@ -50,7 +49,7 @@ function onGoogleReady(callback) {
   }    
 }
 function getQueryUrl(queryBy, route, apiKey) {
-  return 'https://api-v3.mbta.com/queryBy?apiKey=' + apiKey + '&filter[route]=' + route;
+  return 'https://api-v3.mbta.com/' + queryBy + '?apiKey=' + apiKey + '&filter[route]=' + route;
 }
 
 function getVehicles(vehiclesData) {
