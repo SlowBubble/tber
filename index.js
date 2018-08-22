@@ -88,6 +88,9 @@ function addArrows(vehicles) {
     var marker = vehicleIdToMarker[vehicle.vehicle_id]
     if (marker === undefined) {
       var fillColor = 'yellow';
+      if (vehicle.vehicle_label[1] == 8) {
+        fillColor = 'blue'; 
+      }
       var arrow = {
         path: 'M -5 15 L 5 15 L 0 0 z',
         fillColor: fillColor,
