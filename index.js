@@ -55,10 +55,10 @@ function getQueryUrl(queryBy, route, apiKey) {
 function getVehicles(vehiclesData) {
   vehicles = [];
   vehiclesData.data.forEach(function(vehicle) {
-    vehicle.lat = vehicle.attribute.latitude;
-    vehicle.lng = vehicle.attribute.longitude;
-    vehicle.bearing = vehicle.attribute.bearing;
-    vehicle.vehicle_label = vehicle.attribute.label;
+    vehicle.lat = vehicle.attributes.latitude;
+    vehicle.lng = vehicle.attributes.longitude;
+    vehicle.bearing = vehicle.attributes.bearing;
+    vehicle.vehicle_label = vehicle.attributes.label;
     vehicle.vehicle_id = vehicle.id;
     vehicles.push(vehicle);
   });
