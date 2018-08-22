@@ -1,9 +1,9 @@
 
 /////////// Constants
-var apiKey = 'SGED1xrcdUiBRkdRrq6zJQ';
-var redVehiclesUrl = getQueryUrl('vehiclesbyroutes', 'routes', 'Red', apiKey); 
-var redPredictionsUrl = getQueryUrl('predictionsbyroutes', 'routes', 'Red', apiKey);
-var redStopsUrl = getQueryUrl('stopsbyroute', 'route', 'Red', apiKey); 
+var apiKey = '5c68021c1c0942258e03ab1c82fd289a';
+var redVehiclesUrl = getQueryUrl('vehicles', 'Red', apiKey); 
+// var redPredictionsUrl = getQueryUrl('predictions', 'Red', apiKey);
+var redStopsUrl = getQueryUrl('stops', 'route', 'Red', apiKey); 
 
 /////////// Vars initialized asynchronously
 var vehicles = [];
@@ -25,9 +25,9 @@ function getAndUpdateVehiclesPosition() {
 }
 
 $.get(redStopsUrl, function(data) {
-  data.direction[0].stop.forEach(function(stop) {
-    stop.lat = parseFloat(stop.stop_lat);
-    stop.lng = parseFloat(stop.stop_lon);
+  data.data.forEach(function(stop) {
+    stop.lat = stop.attributes.latitude;
+    stop.lng = stop.attributes.longitude;
     stops.push(stop);
   });
   onGoogleReady(function() {
@@ -49,28 +49,20 @@ function onGoogleReady(callback) {
     }, 300);
   }    
 }
-function getQueryUrl(queryBy, routesKey, routesVal, apiKey) {
-  return 'https://realtime.mbta.com/developer/api/v2/' + queryBy + '?' + routesKey + '=' + routesVal + '&format=json&api_key=' + apiKey;
+function getQueryUrl(queryBy, route, apiKey) {
+  retur 'https://api-v3.mbta.com/queryBy?apiKey=' + apiKey + '&filter[route]=' + route;
+  // return 'https://realtime.mbta.com/developer/api/v2/' + queryBy + '?' + routesKey + '=' + routesVal + '&format=json&api_key=' + apiKey;
 }
 
 function getVehicles(vehiclesData) {
   vehicles = [];
-  vehiclesData['mode'].forEach(function(mode) {
-    mode['route'].forEach(function(route) {
-      route['direction'].forEach(function(direction) {
-        direction['trip'].forEach(function(trip) {
-          var vehicle = trip.vehicle;
-          vehicle.northBound = vehicle.direction == 'Northbound';
-          vehicle.lat = parseFloat(vehicle.vehicle_lat);
-          var offset = 0.0005;
-          var offsetSign = vehicle.northBound ? 1 : -1;
-          vehicle.lng = parseFloat(vehicle.vehicle_lon) + offset * offsetSign;
-          vehicle.rotation = parseFloat(vehicle.vehicle_bearing);
-          vehicle.direction = direction.direction_name;
-          vehicles.push(vehicle);
-        });
-      });
-    });
+  vehiclesData.data.forEach(function(vehicle) {
+    vehicle.lat = vehicle.attribute.latitude;
+    vehicle.lng = vehicle.attribute.longitude;
+    vehicle.bearing = vehicle.attribute.bearing;
+    vehicle.vehicle_label = vehicle.attribute.label;
+    vehicle.vehicle_id = vehicle.id;
+    vehicles.push(vehicle);
   });
   return vehicles;
 }
@@ -94,19 +86,10 @@ function addMarkers(stops) {
 }
 
 function addArrows(vehicles) {
-  var currTime = Math.floor((new Date()).getTime() / 1000);
   vehicles.forEach(function(vehicle) {
-    var timeDiff = currTime - parseInt(vehicle.vehicle_timestamp);
     var marker = vehicleIdToMarker[vehicle.vehicle_id]
     if (marker === undefined) {
       var fillColor = 'yellow';
-      if (oldVehicleIds[vehicle.vehicle_id.toLowerCase()]) {
-        fillColor = 'green';
-      } else if (newVehicleIds[vehicle.vehicle_id.toLowerCase()]) {
-        fillColor = 'red';
-      } else if (vehicle.vehicle_label[1] == 8) {
-        fillColor = 'blue'; 
-      }
       var arrow = {
         path: 'M -5 15 L 5 15 L 0 0 z',
         fillColor: fillColor,
@@ -114,13 +97,13 @@ function addArrows(vehicles) {
         scale: 1,
         strokeColor: 'black',
         strokeWeight: 1,
-        rotation: vehicle.direction == 'Northbound' ? 0 : 180,
+        rotation: vehicle.bearing,
       };
       vehicleIdToMarker[vehicle.vehicle_id] = new google.maps.Marker({
         position: vehicle,
         icon: arrow,
         map: map,
-        label: vehicle.vehicle_id.slice(4) + vehicle.vehicle_label,
+        label: vehicle.vehicle_id + '-' + vehicle.vehicle_label,
       });
     } else {
       marker.setPosition(vehicle);
@@ -136,51 +119,3 @@ function initMap(latitude, longitude) {
     zoom: 13,
   });
 }
-
-var oldVehicleIds = {
-  '544e0fd0': 1,
-  '544e09fa': 1,
-  '544e1abb': 1,
-  '544e1ac0': 1,
-  '544e1ad7': 1,
-  '544e1e4a': 1,
-  '544e1e49': 1,
-  '544e1fa3': 1,
-  '544e124f': 1,
-  '544e1750': 1,
-  '544e1907': 1,
-  '544e1972': 1,
-  '544e203d': 1,
-  '544e2abd': 1,
-  '544e2b6f': 1,
-  '544e22a0': 1,
-  '544e24d5': 1,
-  '544e2772': 1,
-  '544e2858': 1,
-};
-
-var newVehicleIds = {
-  '544e0ce6': 1,  
-  '544e0ff5': 1,  
-  '544e012c': 1,  
-  '544e1a3e': 1,  
-  '544e1b07': 1,  
-  '544e1c5e': 1,  
-  '544e1dec': 1,  
-  '544e1d09': 1,  
-  '544e1d65': 1,  
-  '544e1d8f': 1,  
-  '544e1d90': 1,  
-  '544e1e4b': 1,  
-  '544e158b': 1,  
-  '544e158c': 1,  
-  '544e1932': 1,  
-  '544e193b': 1,  
-  '544e20a4': 1,  
-  '544e2270': 1,  
-  '544e24d7': 1,  
-  '544e2456': 1,  
-  '544e25a7': 1,  
-  '544e2538': 1,  
-  '544e2554': 1,  
-};
