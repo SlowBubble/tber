@@ -49,7 +49,7 @@ function onGoogleReady(callback) {
   }    
 }
 function getQueryUrl(queryBy, route, apiKey) {
-  return 'https://api-v3.mbta.com/' + queryBy + '?apiKey=' + apiKey + '&filter[route]=' + route;
+  return 'https://api-v3.mbta.com/' + queryBy + '?api_key=' + apiKey + '&filter[route]=' + route;
 }
 
 function getVehicles(vehiclesData) {
