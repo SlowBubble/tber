@@ -113,10 +113,13 @@ function addArrows(vehicles) {
 }
 
 function initMap(latitude, longitude) {
-  latitude = latitude || 42.391549;
-  longitude = longitude || -71.1249078;
+  latitude = latitude || 42.362491;
+  longitude = longitude || -71.086177;
   map = new google.maps.Map(document.getElementById('map'), {
     center: {lat: latitude, lng: longitude},
     zoom: 13,
   });
 }
+
+// TODO: allow specifying starting map location based on stop id via this info:
+// "{"attributes":{"address":"300 Main St, Cambridge, MA 02142","description":null,"latitude":42.362491,"location_type":1,"longitude":-71.086177,"name":"Kendall/MIT","platform_code":null,"platform_name":null,"wheelchair_boarding":1},"id":"place-knncl","links":{"self":"/stops/place-knncl"},"relationships":{"child_stops":{},"facilities":{"links":{"related":"/facilities/?filter[stop]=place-knncl"}},"parent_station":{"data":null},"recommended_transfers":{},"zone":{"data":null}},"type":"stop","lat":42.362491,"lng":-71.086177}"
