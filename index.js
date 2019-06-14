@@ -142,12 +142,10 @@ function addArrows(vehicleIdToInfo) {
       rotation: vehicle.bearing,
     };
     let label = '';
-    if (vehicle.hasMovement) {
-      if (vehicle.minsSinceLastMove > 0) {
-        label = vehicle.minsSinceLastMove + ' min rest';
-      } else {
-        label = 'moving';
-      }
+    if (vehicle.minsSinceLastMove > 0) {
+      label = vehicle.minsSinceLastMove + ' min rest';
+    } else if (vehicle.hasMovement) {
+      label = 'moving';
     }
     vehicleIdToMarker[vehicle.vehicle_id] = new google.maps.Marker({
       position: vehicle,
