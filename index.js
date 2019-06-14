@@ -42,7 +42,7 @@ function getAndUpdateVehiclesPosition() {
 }
 
 function fixBearing(vehicleIdToInfo) {
-  Object.keys(vehicleIdToInfo).forEach(id => {
+  Object.keys(vehicleIdToInfo).forEach(function(id) {
     var info = vehicleIdToInfo[id];
     var positions = vehicleIdToPositions[id];
     var finalLat = positions[positions.length - 1].lat;
@@ -60,7 +60,7 @@ function fixBearing(vehicleIdToInfo) {
   });
 }
 function savePositions(vehicleIdToInfo) {
-  Object.keys(vehicleIdToInfo).forEach(id => {
+  Object.keys(vehicleIdToInfo).forEach(function(id) {
     var info = vehicleIdToInfo[id];
     var positions = vehicleIdToPositions[id];
     if (!positions) {
