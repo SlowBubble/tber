@@ -1,11 +1,11 @@
 
-/////////// Constants
+/////////// varants
 var apiKey = '5c68021c1c0942258e03ab1c82fd289a';
 var redVehiclesUrl = getQueryUrl('vehicles', 'Red', apiKey); 
 var redStopsUrl = getQueryUrl('stops', 'Red', apiKey); 
-const refresh_secs = 8;
-const positions_history_mins = 4;
-const num_positions_in_history = Math.floor(
+var refresh_secs = 8;
+var positions_history_mins = 4;
+var num_positions_in_history = Math.floor(
   positions_history_mins * 60 / refresh_secs);
 
 /////////// Vars initialized asynchronously
@@ -32,7 +32,7 @@ $.get(redStopsUrl, function(data) {
 /////////// Helpers
 function getAndUpdateVehiclesPosition() {
   $.get(redVehiclesUrl, function(data, status, xhr){
-    const vehicleIdToInfo = getVehicleIdToInfo(data);
+    var vehicleIdToInfo = getVehicleIdToInfo(data);
     savePositions(vehicleIdToInfo);
     fixBearing(vehicleIdToInfo);
     onGoogleReady(function() {
@@ -43,12 +43,12 @@ function getAndUpdateVehiclesPosition() {
 
 function fixBearing(vehicleIdToInfo) {
   Object.keys(vehicleIdToInfo).forEach(id => {
-    const info = vehicleIdToInfo[id];
-    const positions = vehicleIdToPositions[id];
-    const finalLat = positions[positions.length - 1].lat;
-    let minsSinceLastMove = Math.floor((positions.length - 2) * refresh_secs / 60);
-    for (let i = positions.length - 2; i >= 0; i--) {
-      const latChange = finalLat - positions[i].lat;
+    var info = vehicleIdToInfo[id];
+    var positions = vehicleIdToPositions[id];
+    var finalLat = positions[positions.length - 1].lat;
+    var minsSinceLastMove = Math.floor((positions.length - 2) * refresh_secs / 60);
+    for (var i = positions.length - 2; i >= 0; i--) {
+      var latChange = finalLat - positions[i].lat;
       if (latChange !== 0) {
         info.bearing = latChange > 0 ? 0 : 180;
         info.hasMovement = true;
@@ -61,8 +61,8 @@ function fixBearing(vehicleIdToInfo) {
 }
 function savePositions(vehicleIdToInfo) {
   Object.keys(vehicleIdToInfo).forEach(id => {
-    const info = vehicleIdToInfo[id];
-    let positions = vehicleIdToPositions[id];
+    var info = vehicleIdToInfo[id];
+    var positions = vehicleIdToPositions[id];
     if (!positions) {
       positions = [];
       vehicleIdToPositions[id] = positions;
@@ -92,7 +92,7 @@ function getQueryUrl(queryBy, route, apiKey) {
 }
 
 function getVehicleIdToInfo(vehiclesData) {
-  const vehicleIdToInfo = {};
+  var vehicleIdToInfo = {};
   vehiclesData.data.forEach(function(vehicle) {
     vehicle.lat = vehicle.attributes.latitude;
     vehicle.lng = vehicle.attributes.longitude;
@@ -141,7 +141,7 @@ function addArrows(vehicleIdToInfo) {
       strokeWeight: 1,
       rotation: vehicle.bearing,
     };
-    let label = '';
+    var label = '';
     if (vehicle.minsSinceLastMove > 0) {
       label = vehicle.minsSinceLastMove + ' min rest';
     } else if (vehicle.hasMovement) {
