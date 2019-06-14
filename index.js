@@ -45,7 +45,7 @@ var apiKey = '5c68021c1c0942258e03ab1c82fd289a';
 var redVehiclesUrl = getQueryUrl('vehicles', 'Red', apiKey); 
 var redStopsUrl = getQueryUrl('stops', 'Red', apiKey); 
 var refresh_secs = 8;
-var positions_history_mins = 4;
+var positions_history_mins = 8;
 var num_positions_in_history = Math.floor(
   positions_history_mins * 60 / refresh_secs);
 
