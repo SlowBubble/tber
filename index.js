@@ -3,25 +3,20 @@
 var apiKey = '5c68021c1c0942258e03ab1c82fd289a';
 var redVehiclesUrl = getQueryUrl('vehicles', 'Red', apiKey); 
 var redStopsUrl = getQueryUrl('stops', 'Red', apiKey); 
+const refresh_secs = 8;
+const positions_history_mins = 4;
+const num_positions_in_history = Math.floor(
+  positions_history_mins * 60 / refresh_secs);
 
 /////////// Vars initialized asynchronously
-var vehicles = [];
 var stops = [];
 var map; // Done in another script;
 var vehicleIdToMarker = {};
+var vehicleIdToPositions = {};
 
 /////////// Mbta  data initialization
 getAndUpdateVehiclesPosition();
-window.setInterval(getAndUpdateVehiclesPosition, 8000);
-
-function getAndUpdateVehiclesPosition() {
-  $.get(redVehiclesUrl, function(data, status, xhr){
-    vehicles = getVehicles(data);
-    onGoogleReady(function() {
-      addArrows(vehicles);      
-    });
-  }, 'json');
-}
+window.setInterval(getAndUpdateVehiclesPosition, refresh_secs * 1000);
 
 $.get(redStopsUrl, function(data) {
   data.data.forEach(function(stop) {
@@ -34,7 +29,51 @@ $.get(redStopsUrl, function(data) {
   });
 }, 'json');
 
-/////////// Helpers 
+/////////// Helpers
+function getAndUpdateVehiclesPosition() {
+  $.get(redVehiclesUrl, function(data, status, xhr){
+    const vehicleIdToInfo = getVehicleIdToInfo(data);
+    savePositions(vehicleIdToInfo);
+    fixBearing(vehicleIdToInfo);
+    onGoogleReady(function() {
+      addArrows(vehicleIdToInfo);      
+    });
+  }, 'json');
+}
+
+function fixBearing(vehicleIdToInfo) {
+  Object.keys(vehicleIdToInfo).forEach(id => {
+    const info = vehicleIdToInfo[id];
+    const positions = vehicleIdToPositions[id];
+    const finalLat = positions[positions.length - 1].lat;
+    let minsSinceLastMove = Math.floor((positions.length - 2) * refresh_secs / 60);
+    for (let i = positions.length - 2; i >= 0; i--) {
+      const latChange = finalLat - positions[i].lat;
+      if (latChange !== 0) {
+        info.bearing = latChange > 0 ? 0 : 180;
+        info.hasMovement = true;
+        minsSinceLastMove = Math.floor((positions.length - 2 - i) * refresh_secs / 60);
+        break;
+      }
+    }
+    info.minsSinceLastMove = minsSinceLastMove;
+  });
+}
+function savePositions(vehicleIdToInfo) {
+  Object.keys(vehicleIdToInfo).forEach(id => {
+    const info = vehicleIdToInfo[id];
+    let positions = vehicleIdToPositions[id];
+    if (!positions) {
+      positions = [];
+      vehicleIdToPositions[id] = positions;
+    }
+    if (positions.length > 2 * num_positions_in_history) {
+      positions = positions.slice(num_positions_in_history);
+      vehicleIdToPositions[id] = positions;
+    }
+    positions.push({lat: info.lat, lng: info.lng});
+  });
+}
 function onGoogleReady(callback) {
   if (typeof google !== 'undefined') {
     callback();
@@ -52,17 +91,17 @@ function getQueryUrl(queryBy, route, apiKey) {
   return 'https://api-v3.mbta.com/' + queryBy + '?api_key=' + apiKey + '&filter[route]=' + route;
 }
 
-function getVehicles(vehiclesData) {
-  vehicles = [];
+function getVehicleIdToInfo(vehiclesData) {
+  const vehicleIdToInfo = {};
   vehiclesData.data.forEach(function(vehicle) {
     vehicle.lat = vehicle.attributes.latitude;
     vehicle.lng = vehicle.attributes.longitude;
     vehicle.bearing = vehicle.attributes.bearing;
     vehicle.vehicle_label = vehicle.attributes.label;
     vehicle.vehicle_id = vehicle.id;
-    vehicles.push(vehicle);
+    vehicleIdToInfo[vehicle.id] = vehicle;
   });
-  return vehicles;
+  return vehicleIdToInfo;
 }
 
 function addMarkers(stops) {
@@ -83,32 +122,39 @@ function addMarkers(stops) {
   });   
 }
 
-function addArrows(vehicles) {
-  vehicles.forEach(function(vehicle) {
-    var marker = vehicleIdToMarker[vehicle.vehicle_id]
-    if (marker === undefined) {
-      var fillColor = 'yellow';
-      if (vehicle.vehicle_label[1] == 8) {
-        fillColor = 'blue'; 
-      }
-      var arrow = {
-        path: 'M -5 15 L 5 15 L 0 0 z',
-        fillColor: fillColor,
-        fillOpacity: 1,
-        scale: 1,
-        strokeColor: 'black',
-        strokeWeight: 1,
-        rotation: vehicle.bearing,
-      };
-      vehicleIdToMarker[vehicle.vehicle_id] = new google.maps.Marker({
-        position: vehicle,
-        icon: arrow,
-        map: map,
-        label: vehicle.vehicle_label,
-      });
-    } else {
-      marker.setPosition(vehicle);
+function addArrows(vehicleIdToInfo) {
+  Object.values(vehicleIdToInfo).forEach(function(vehicle) {
+    var marker = vehicleIdToMarker[vehicle.vehicle_id];
+    if (marker) {
+      marker.setMap(null);
     }
+    var fillColor = 'yellow';
+    if (vehicle.vehicle_label[1] == 8) {
+      fillColor = 'blue'; 
+    }
+    var arrow = {
+      path: 'M -5 15 L 5 15 L 0 0 z',
+      fillColor: fillColor,
+      fillOpacity: 1,
+      scale: 1,
+      strokeColor: 'black',
+      strokeWeight: 1,
+      rotation: vehicle.bearing,
+    };
+    let label = '';
+    if (vehicle.hasMovement) {
+      if (vehicle.minsSinceLastMove > 0) {
+        label = vehicle.minsSinceLastMove + ' min rest';
+      } else {
+        label = 'moving';
+      }
+    }
+    vehicleIdToMarker[vehicle.vehicle_id] = new google.maps.Marker({
+      position: vehicle,
+      icon: arrow,
+      map: map,
+      label: label,
+    });
   });   
 }
 
