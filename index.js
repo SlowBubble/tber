@@ -227,7 +227,7 @@ function addArrows(vehicleIdToInfo) {
     };
     var label = '';
     var duration = Math.floor((Date.now() - Date.parse(vehicle.updated_at)) / 1000);
-    if (duration > 120) {
+    if (duration > 240) {
       label += '?: ' + duration + 's';
     } else {
       if (vehicle.current_status.includes('STOPPED')) {
