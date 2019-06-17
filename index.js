@@ -44,7 +44,7 @@ if (!Object.keys) {
 var apiKey = '5c68021c1c0942258e03ab1c82fd289a';
 var redVehiclesUrl = getQueryUrl('vehicles', 'Red', apiKey); 
 var redStopsUrl = getQueryUrl('stops', 'Red', apiKey); 
-var refresh_secs = 8;
+var refresh_secs = 5;
 var positions_history_mins = 8;
 var num_positions_in_history = Math.floor(
   positions_history_mins * 60 / refresh_secs);
@@ -54,6 +54,9 @@ var stops = [];
 var map; // Done in another script;
 var vehicleIdToMarker = {};
 var vehicleIdToPositions = {};
+var vehicleIdToArrivingStart = {};
+var vehicleIdToBoardingStart = {};
+var debugData;
 
 /////////// Mbta  data initialization
 getAndUpdateVehiclesPosition();
@@ -73,31 +76,62 @@ $.get(redStopsUrl, function(data) {
 /////////// Helpers
 function getAndUpdateVehiclesPosition() {
   $.get(redVehiclesUrl, function(data, status, xhr){
+    debugData = data;
     var vehicleIdToInfo = getVehicleIdToInfo(data);
     savePositions(vehicleIdToInfo);
-    fixBearing(vehicleIdToInfo);
+    updateLastMoveSince(vehicleIdToInfo);
+    updateArrivingStart(vehicleIdToInfo);
+    updateBoardingStart(vehicleIdToInfo);
     onGoogleReady(function() {
       addArrows(vehicleIdToInfo);      
     });
   }, 'json');
 }
 
-function fixBearing(vehicleIdToInfo) {
+function updateArrivingStart(vehicleIdToInfo) {
+  Object.keys(vehicleIdToInfo).forEach(function(id) {
+    var info = vehicleIdToInfo[id];
+    if (info.current_status.includes('INCOMING')) {
+      if (vehicleIdToArrivingStart[id]) {
+        return;
+      }
+      vehicleIdToArrivingStart[id] = Date.now();
+      return;
+    }
+    delete vehicleIdToArrivingStart[id];
+  });
+}
+
+function updateBoardingStart(vehicleIdToInfo) {
+  Object.keys(vehicleIdToInfo).forEach(function(id) {
+    var info = vehicleIdToInfo[id];
+    if (info.current_status.includes('STOPPED')) {
+      if (vehicleIdToBoardingStart[id]) {
+        return;
+      }
+      vehicleIdToBoardingStart[id] = Date.now();
+      return;
+    }
+    delete vehicleIdToBoardingStart[id];
+  });
+}
+
+function updateLastMoveSince(vehicleIdToInfo) {
   Object.keys(vehicleIdToInfo).forEach(function(id) {
     var info = vehicleIdToInfo[id];
     var positions = vehicleIdToPositions[id];
     var finalLat = positions[positions.length - 1].lat;
-    var minsSinceLastMove = Math.floor((positions.length - 2) * refresh_secs / 60);
+    // Make 1 minute to mean 45 seconds.
+    var lastMoveSince = (positions.length - 2) * refresh_secs;
     for (var i = positions.length - 2; i >= 0; i--) {
       var latChange = finalLat - positions[i].lat;
       if (latChange !== 0) {
-        info.bearing = latChange > 0 ? 0 : 180;
         info.hasMovement = true;
-        minsSinceLastMove = Math.floor((positions.length - 2 - i) * refresh_secs / 60);
+        lastMoveSince = (positions.length - 2 - i) * refresh_secs;
         break;
       }
     }
-    info.minsSinceLastMove = minsSinceLastMove;
+    info.lastMoveSince = lastMoveSince;
   });
 }
 function savePositions(vehicleIdToInfo) {
@@ -138,6 +172,9 @@ function getVehicleIdToInfo(vehiclesData) {
     vehicle.lat = vehicle.attributes.latitude;
     vehicle.lng = vehicle.attributes.longitude;
     vehicle.bearing = vehicle.attributes.bearing;
+    vehicle.direction_id = vehicle.attributes.direction_id;
+    vehicle.current_status = vehicle.attributes.current_status;
+    vehicle.updated_at = vehicle.attributes.updated_at;
     vehicle.vehicle_label = vehicle.attributes.label;
     vehicle.vehicle_id = vehicle.id;
     vehicleIdToInfo[vehicle.id] = vehicle;
@@ -170,9 +207,14 @@ function addArrows(vehicleIdToInfo) {
     if (marker) {
       marker.setMap(null);
     }
-    var fillColor = 'yellow';
-    if (vehicle.vehicle_label[1] == 8) {
-      fillColor = 'blue'; 
+    var fillColor = 'red';
+    console.log(vehicle);
+    var rotation = vehicle.bearing;
+    if (vehicle.direction_id === 0) {
+      rotation = 180;
+    }
+    if (vehicle.direction_id === 1) {
+      rotation = 0;
     }
     var arrow = {
       path: 'M -5 15 L 5 15 L 0 0 z',
@@ -181,13 +223,25 @@ function addArrows(vehicleIdToInfo) {
       scale: 1,
       strokeColor: 'black',
       strokeWeight: 1,
-      rotation: vehicle.bearing,
+      rotation: rotation,
     };
     var label = '';
-    if (vehicle.minsSinceLastMove > 0) {
-      label = vehicle.minsSinceLastMove + ' min rest';
-    } else if (vehicle.hasMovement) {
-      label = 'moving';
+    var duration = Math.floor((Date.now() - Date.parse(vehicle.updated_at)) / 1000);
+    if (duration > 120) {
+      label += '?: ' + duration + 's';
+    } else {
+      if (vehicle.current_status.includes('STOPPED')) {
+        var duration = Math.floor((Date.now() - vehicleIdToBoardingStart[id]) / 1000);
+        vehicleIdToBoardingStart
+        label += 'BRD: ' + duration + 's';
+      } else if (vehicle.current_status.includes('INCOMING')) {
+        var duration = Math.floor((Date.now() - vehicleIdToArrivingStart[id]) / 1000);
+        label += 'ARR: ' + duration + 's';
+      } else {
+        if (vehicle.lastMoveSince > 40) {
+          label += 'STOP: ' + vehicle.lastMoveSince + 's';
+        }
+      }
     }
     vehicleIdToMarker[vehicle.vehicle_id] = new google.maps.Marker({
       position: vehicle,
